@@ -1,7 +1,7 @@
 name := "spark-util"
 
-version := "1.0.0"
+version := "1.0.1-SNAPSHOT"
 
-libraryDependencies ++= Seq(
-  "org.apache.spark" %% "spark-core" % "1.6.1"
-)
+libraryDependencies <++= libraries { v => Seq(
+  v('spark)
+)}
