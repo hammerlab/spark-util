@@ -1,6 +1,6 @@
 # spark-util
 
-[![Maven Central](https://img.shields.io/maven-central/v/org.hammerlab/spark-util_2.11.svg?maxAge=25920)](http://search.maven.org/#search%7Cga%7C1%7Cspark-util)
+[![Maven Central](https://img.shields.io/maven-central/v/org.hammerlab/spark-util_2.11.svg?maxAge=1800)](http://search.maven.org/#search%7Cga%7C1%7Cspark-util)
 
 Low-level helpers for Spark libraries and tests, currently:
 
