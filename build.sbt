@@ -1,7 +1,5 @@
 name := "spark-util"
 
-version := "1.1.0"
+version := "1.1.1"
 
-libraryDependencies <++= libraries { v => Seq(
-  v('spark)
-)}
+providedDeps += libraries.value('spark)
