@@ -1,6 +1,7 @@
 name := "spark-util"
 
-version := "1.1.2"
+version := "1.1.3"
 
-providedDeps += libs.value('spark)
-testDeps := Nil
+deps += libs.value('paths)
+
+providedDeps += spark.value
