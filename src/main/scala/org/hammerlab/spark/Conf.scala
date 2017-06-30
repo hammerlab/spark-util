@@ -12,9 +12,9 @@ object Conf {
 
     val envSparkPropertiesFiles =
       Option(System.getenv("SPARK_PROPERTIES_FILES"))
-      .toList
-      .flatMap(_.split(","))
-      .filterNot(_.isEmpty)
+        .toList
+        .flatMap(_.split(","))
+        .filterNot(_.isEmpty)
 
     // CLI props come after (and thus overwrite) env props
     val sparkPropertiesFiles =
