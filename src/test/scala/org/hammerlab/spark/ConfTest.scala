@@ -29,7 +29,9 @@ class ConfTest
         """
       )
 
-    val conf = Conf(s"$f1,$f2")
+    setEnv("SPARK_PROPERTIES_FILES", s"$f1,$f2")
+
+    val conf = Conf()
 
     val expected =
       Seq(
