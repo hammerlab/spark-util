@@ -19,10 +19,12 @@ object Partitioner {
     new spark.Partitioner {
       override def numPartitions: PartitionIndex = num
       override def getPartition(key: Any): PartitionIndex =
-        if (key.isInstanceOf[T])
+        try {
           fn(key.asInstanceOf[T])
-        else
-          throw UnexpectedKey(key)
+        } catch {
+          case _: ClassCastException ⇒
+            throw UnexpectedKey(key)
+        }
     }
 }
 

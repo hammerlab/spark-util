@@ -6,4 +6,4 @@ deps += paths % "1.1.1-SNAPSHOT"
 
 providedDeps += spark
 
-testUtilsVersion := "1.2.4-SNAPSHOT"
+testDeps := Seq(testUtils % "1.2.4-SNAPSHOT")
