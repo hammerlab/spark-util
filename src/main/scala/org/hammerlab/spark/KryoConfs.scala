@@ -9,11 +9,6 @@ trait KryoConfs {
   def referenceTracking: Boolean = false
   def registrar: Class[_ <: KryoRegistrator] = null
 
-//  def registrar(clz: Class[_ <: KryoRegistrator]): Unit =
-//    sparkConf(
-//      "spark.kryo.registrator" → getClass.getCanonicalName
-//    )
-
   sparkConf(
     "spark.serializer" → classOf[KryoSerializer].getCanonicalName,
     "spark.kryo.referenceTracking" → referenceTracking.toString,
