@@ -1,6 +1,6 @@
 package org.hammerlab.hadoop
 
-import java.io.{ ByteArrayInputStream, ByteArrayOutputStream }
+import java.io.{ ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream }
 import java.util.Properties
 
 import com.esotericsoftware.kryo.Kryo
@@ -14,7 +14,7 @@ import scala.collection.JavaConverters._
 
 class ConfigurationTest
   extends Suite {
-  test("serde") {
+  test("kryo serde") {
     val conf = Configuration()
     val kryo = new Kryo()
     kryo.setRegistrationRequired(true)
@@ -39,12 +39,35 @@ class ConfigurationTest
     val input = new Input(bais)
     val afterConf = kryo.readClassAndObject(input).asInstanceOf[Configuration]
 
-    val propsField = classOf[hadoop.conf.Configuration].getDeclaredMethod("getProps")
-    propsField.setAccessible(true)
+    compare(conf, afterConf)
+  }
 
+  test("java serde") {
+    val conf = Configuration()
+    val baos = new ByteArrayOutputStream()
+    val out = new ObjectOutputStream(baos)
+
+    out.writeObject(conf)
+
+    out.close()
+
+    val bytes = baos.toByteArray
+
+    val bais = new ByteArrayInputStream(bytes)
+    val in = new ObjectInputStream(bais)
+
+    val after = in.readObject().asInstanceOf[Configuration]
+
+    compare(conf, after)
+  }
+
+  val propsField = classOf[hadoop.conf.Configuration].getDeclaredMethod("getProps")
+  propsField.setAccessible(true)
+
+  def compare(beforeConf: Configuration, afterConf: Configuration): Unit = {
     val before =
       propsField
-        .invoke(conf.value)
+        .invoke(beforeConf.value)
         .asInstanceOf[Properties]
         .asScala
 
