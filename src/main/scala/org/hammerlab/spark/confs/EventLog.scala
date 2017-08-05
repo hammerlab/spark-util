@@ -1,6 +1,8 @@
-package org.hammerlab.spark
+package org.hammerlab.spark.confs
 
-trait EventLogConfs {
+import org.hammerlab.spark.SparkConfBase
+
+trait EventLog {
   self: SparkConfBase ⇒
   def listenerBusSize = 1000000
   sparkConf(

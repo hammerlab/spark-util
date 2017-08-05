@@ -1,6 +1,8 @@
-package org.hammerlab.spark
+package org.hammerlab.spark.confs
 
-trait DynamicAllocationConfs {
+import org.hammerlab.spark.SparkConfBase
+
+trait DynamicAllocation {
   self: SparkConfBase ⇒
   sparkConf(
     "spark.shuffle.service.enabled" → "true",

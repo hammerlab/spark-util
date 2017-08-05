@@ -7,7 +7,7 @@ import org.apache.hadoop.conf
 import org.apache.hadoop.conf.{ Configuration ⇒ HadoopConfiguration }
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
-import org.hammerlab.hadoop.kryo.{ SerializableSerializer, WritableSerializer }
+import org.hammerlab.hadoop.kryo.WritableSerializer
 import org.hammerlab.kryo.serializeAs
 
 class Configuration(@transient var value: HadoopConfiguration)

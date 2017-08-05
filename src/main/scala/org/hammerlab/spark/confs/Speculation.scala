@@ -1,6 +1,8 @@
-package org.hammerlab.spark
+package org.hammerlab.spark.confs
 
-trait SpeculationConfs {
+import org.hammerlab.spark.SparkConfBase
+
+trait Speculation {
   self: SparkConfBase ⇒
   def speculationInterval = 1000
   def speculationMultiplier = 1.3

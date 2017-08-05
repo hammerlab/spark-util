@@ -1,8 +1,9 @@
-package org.hammerlab.spark
+package org.hammerlab.spark.confs
 
 import org.apache.spark.serializer.{ KryoRegistrator, KryoSerializer }
+import org.hammerlab.spark.SparkConfBase
 
-trait KryoConfs {
+trait Kryo {
   self: SparkConfBase ⇒
 
   def registrationRequired: Boolean = true

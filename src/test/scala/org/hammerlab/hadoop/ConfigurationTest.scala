@@ -3,16 +3,14 @@ package org.hammerlab.hadoop
 import java.io.{ ByteArrayInputStream, ByteArrayOutputStream }
 import java.util.Properties
 
-import org.hammerlab.kryo.serializeAs
-import org.apache.hadoop.conf.Configuration.isDeprecated
-import org.apache.hadoop
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{ Input, Output }
-import org.hammerlab.hadoop.kryo.{ SerializableSerializer, WritableSerializer }
+import org.apache.hadoop
+import org.apache.hadoop.conf.Configuration.isDeprecated
 import org.hammerlab.test.Suite
+import org.hammerlab.test.matchers.seqs.MapMatcher.mapMatch
 
 import scala.collection.JavaConverters._
-import org.hammerlab.test.matchers.seqs.MapMatcher.mapMatch
 
 class ConfigurationTest
   extends Suite {
