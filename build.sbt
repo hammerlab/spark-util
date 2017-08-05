@@ -1,7 +1,9 @@
 name := "spark-util"
 
-version := "1.1.3"
+version := "1.2.0"
 
-deps += libs.value('paths)
+deps += paths % "1.2.0"
 
-providedDeps += spark.value
+providedDeps += spark
+
+testDeps := Seq(testUtils % "1.3.0")
