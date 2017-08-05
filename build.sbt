@@ -1,6 +1,6 @@
 name := "spark-util"
 
-version := "1.2.0-SNAPSHOT"
+version := "1.2.0"
 
 deps += paths % "1.2.0"
 
