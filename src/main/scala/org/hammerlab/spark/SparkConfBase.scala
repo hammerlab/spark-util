@@ -1,7 +1,5 @@
 package org.hammerlab.spark
 
-import java.lang.System.{ clearProperty, getProperty, setProperty }
-
 import org.apache.spark.SparkConf
 
 import scala.collection.mutable
