@@ -1,9 +1,11 @@
 package org.hammerlab.spark
 
 import org.apache.hadoop.io.{ BytesWritable, NullWritable }
-import org.apache.spark.rdd.GetFileSplit
+import org.apache.hadoop.mapred
+import org.apache.hadoop.mapreduce.lib.input
+import org.apache.spark.rdd.{ GetFileSplit, NonHadoopPartition }
 import org.apache.spark.{ SparkConf, SparkContext }
-import org.hammerlab.hadoop.splits.{ UnsplittableNewSequenceFileInputFormat, UnsplittableSequenceFileInputFormat }
+import org.hammerlab.hadoop.splits.{ FileSplit, UnsplittableNewSequenceFileInputFormat, UnsplittableSequenceFileInputFormat }
 import org.hammerlab.test.Suite
 
 class HadoopPartitionTest
@@ -87,4 +89,16 @@ class HadoopPartitionTest
       )
   }
 
+  test("non-hadoop rdd") {
+    intercept[NonHadoopPartition] {
+      GetFileSplit(sc.parallelize(1 to 1000).partitions.head)
+    }
+  }
+
+  test("casts") {
+    val split = FileSplit(tmpPath(), 123, 456, Array("abc", "def"))
+    ((split: input.FileSplit): FileSplit) should be(split)
+    ((split: mapred.FileSplit): FileSplit) should be(split)
+    split.end should be(579)
+  }
 }

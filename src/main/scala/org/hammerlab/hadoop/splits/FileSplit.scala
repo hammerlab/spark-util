@@ -32,8 +32,16 @@ object FileSplit {
       split.getLocations
     )
 
-  implicit def apply(split: FileSplit): input.FileSplit =
+  implicit def toNewSplit(split: FileSplit): input.FileSplit =
     new input.FileSplit(
+      new HPath(split.path.toUri),
+      split.start,
+      split.length,
+      split.locations
+    )
+
+  implicit def toOldSplit(split: FileSplit): mapred.FileSplit =
+    new mapred.FileSplit(
       new HPath(split.path.toUri),
       split.start,
       split.length,
