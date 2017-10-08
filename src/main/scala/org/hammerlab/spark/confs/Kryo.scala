@@ -1,10 +1,14 @@
 package org.hammerlab.spark.confs
 
 import org.apache.spark.serializer.{ KryoRegistrator, KryoSerializer }
+import org.hammerlab.kryo.Registrar
 import org.hammerlab.spark.SparkConfBase
 
-trait Kryo {
-  self: SparkConfBase ⇒
+trait Kryo
+  extends SparkConfBase
+    with Registrar {
+
+  private val self = this
 
   def registrationRequired: Boolean = true
   def referenceTracking: Boolean = false
@@ -20,7 +24,7 @@ trait Kryo {
     .foreach(
       clz ⇒
         sparkConf(
-          "spark.kryo.registrator" → clz.getCanonicalName
+          "spark.kryo.registrator" → clz.getName
         )
     )
 }
