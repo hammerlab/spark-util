@@ -1,16 +1,11 @@
 package org.hammerlab.spark
 
 import org.apache.spark.serializer.KryoSerializer
-import org.hammerlab.kryo.spark.Registrator
-import org.hammerlab.test.Suite
 
 import scala.collection.mutable
 
 class ConfsTest
-  extends Suite
-    with SparkConfBase
-    with Registrator
-    with confs.Kryo
+  extends ContextSuite
     with confs.DynamicAllocation
     with confs.EventLog
     with confs.Speculation {
@@ -18,21 +13,14 @@ class ConfsTest
   val eventLogDir = tmpDir().toString
 
   sparkConf(
-    "spark.master" → s"local[4]",
-    "spark.app.name" → getClass.getName,
-    "spark.driver.host" → "localhost",
     "spark.eventLog.dir" → eventLogDir
   )
-
-  override def registrar = getClass
 
   register(
     classOf[Array[String]],
     classOf[mutable.WrappedArray.ofRef[_]],
     classOf[Foo]
   )
-
-  var sc: Context = _
 
   test("make SparkContext") {
 
@@ -50,14 +38,6 @@ class ConfsTest
     val rdd = sc.parallelize(strings)
     rdd.count should be(4)
     rdd.map(_ + fooBroadcast.value.s).collect should be(Array("ax", "bx", "cx", "dx"))
-  }
-
-  override def afterAll(): Unit = {
-    // Do this before the super delegation, which will remove the temporary event-log dir
-    if (sc != null)
-      sc.stop()
-
-    super.afterAll()
   }
 }
 

@@ -5,19 +5,13 @@ import com.esotericsoftware.kryo.Serializer
 import com.esotericsoftware.kryo.io.{ Input, Output }
 import org.apache.spark.serializer.KryoRegistrator
 import org.hammerlab.kryo.spark.Registrator
-import org.hammerlab.spark.{ Context, SparkConfBase }
-import org.hammerlab.spark.confs.Kryo
-import org.hammerlab.test.Suite
+import org.hammerlab.kryo.spark.Registrator._
+import org.hammerlab.spark.{ Context, ContextSuite }
 
 import scala.collection.mutable
 
 class RegistrationTest
-  extends Suite
-    with SparkConfBase
-    with Kryo
-    with Registrator {
-
-  override def registrar = getClass
+  extends ContextSuite {
 
   register(
     "org.hammerlab.kryo.A",
@@ -26,16 +20,9 @@ class RegistrationTest
     classOf[mutable.WrappedArray.ofRef[_]],
     classOf[B] → BSerializer,
     CDRegistrar,
+    CDRegistrar: KryoRegistrator,  // test duplicate registration and a Registrator implicit
     new EFRegistrator
   )
-
-  sparkConf(
-    "spark.master" → s"local[4]",
-    "spark.app.name" → getClass.getName,
-    "spark.driver.host" → "localhost"
-  )
-
-  var sc: Context = _
 
   test("registrations") {
     implicit val conf = makeSparkConf
@@ -76,11 +63,6 @@ class RegistrationTest
         600
       )
     )
-  }
-
-  override def afterAll(): Unit = {
-    sc.stop()
-    super.afterAll()
   }
 }
 
