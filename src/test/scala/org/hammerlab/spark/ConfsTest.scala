@@ -15,21 +15,22 @@ class ConfsTest
     with confs.EventLog
     with confs.Speculation {
 
+  val eventLogDir = tmpDir().toString
+
   sparkConf(
     "spark.master" → s"local[4]",
-    "spark.app.name" → this.getClass.getName,
-    "spark.driver.host" → "localhost"
+    "spark.app.name" → getClass.getName,
+    "spark.driver.host" → "localhost",
+    "spark.eventLog.dir" → eventLogDir
   )
 
-  override def registrar = this.getClass
+  override def registrar = getClass
 
   register(
     classOf[Array[String]],
     classOf[mutable.WrappedArray.ofRef[_]],
     classOf[Foo]
   )
-
-  override lazy val eventLogDir = tmpDir()
 
   var sc: Context = _
 
@@ -40,7 +41,7 @@ class ConfsTest
     conf.get("spark.serializer") should be(classOf[KryoSerializer].getCanonicalName)
     conf.get("spark.dynamicAllocation.enabled") should be("true")
     conf.get("spark.eventLog.enabled") should be("true")
-    conf.get("spark.eventLog.dir") should be(eventLogDir.toString)
+    conf.get("spark.eventLog.dir") should be(eventLogDir)
     conf.get("spark.speculation") should be("true")
 
     sc = Context()
