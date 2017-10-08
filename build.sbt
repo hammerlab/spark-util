@@ -8,8 +8,8 @@ deps ++= Seq(
 )
 
 providedDeps ++= Seq(
-  spark,
-  hadoop
+  hadoop,
+  spark
 )
 
 testDeps := Seq(testUtils)

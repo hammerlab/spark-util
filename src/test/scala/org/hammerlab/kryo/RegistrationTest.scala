@@ -1,8 +1,8 @@
 package org.hammerlab.kryo
 
 import com.esotericsoftware.kryo
-import com.esotericsoftware.kryo.Serializer
 import com.esotericsoftware.kryo.io.{ Input, Output }
+import com.esotericsoftware.kryo.{ Kryo, Serializer }
 import org.apache.spark.serializer.KryoRegistrator
 import org.hammerlab.kryo.spark.Registrator
 import org.hammerlab.kryo.spark.Registrator._
@@ -14,13 +14,12 @@ class RegistrationTest
   extends ContextSuite {
 
   register(
-    "org.hammerlab.kryo.A",
-    classOf[Foo],
-    classOf[Array[Foo]],
-    classOf[mutable.WrappedArray.ofRef[_]],
-    classOf[B] → BSerializer,
+    cls[A],  // comes with an AlsoRegister that loops in B and its implicit custom Serializer
+    arr[Foo],
+    cls[mutable.WrappedArray.ofRef[_]],
     CDRegistrar,
     CDRegistrar: KryoRegistrator,  // test duplicate registration and a Registrator implicit
+    CDRegistrar: Registrar,        // test duplicate registration and a Registration implicit
     new EFRegistrator
   )
 
@@ -52,13 +51,13 @@ class RegistrationTest
         10,
         200,
         30,
-        40,
+        42,
         50,
         60,
         100,
         2000,
         300,
-        400,
+        42,
         500,
         600
       )
@@ -66,30 +65,51 @@ class RegistrationTest
   }
 }
 
-/** Dummy serializer that 10x's the value of [[B]] instances passed through it */
-object BSerializer extends Serializer[B] {
-  override def read(k: kryo.Kryo, input: Input, clz: Class[B]): B = B(input.readInt())
-  override def write(k: kryo.Kryo, output: Output, b: B) = output.writeInt(b.n * 10)
+// Wrapper for inducing/testing serde of a bunch of classes
+case class Foo(a: A, b: B, c: C, d: D, e: E, f: F)
+
+case class A(n: Int)
+object A {
+  /** Registering [[A]] implicitly causes registration of [[B]] along with [[B]]'s implicit custom [[Serializer]] */
+  implicit val alsoRegister: AlsoRegister[A] =
+    AlsoRegister(classOf[B])
 }
 
-object CDRegistrar extends Registrar {
+case class B(n: Int)
+object B {
+  /** Dummy [[Serializer]] that 10x's a value that is round-tripped through it, for testing/verification purposes */
+  implicit val serializer: Serializer[B] =
+    new Serializer[B] {
+      override def read(k: kryo.Kryo, input: Input, clz: Class[B]): B = B(input.readInt())
+      override def write(k: kryo.Kryo, output: Output, b: B) = output.writeInt(b.n * 10)
+    }
+}
+
+
+case class C(n: Int)
+
+case class D(n: Int)
+object DSerializer extends Serializer[D] {
+  /** Dummy [[Serializer]] that sets all values to 42, for testing/verification purposes */
+  override def read(kryo: Kryo, input: Input, cls: Class[D]): D = { input.readInt(); D(42) }
+  override def write(kryo: Kryo, output: Output, d: D): Unit = output.writeInt(d.n)
+}
+
+/** Test composing [[Registration]]s by registering this [[Registrar]] */
+object CDRegistrar extends Registrator {
   register(
-    classOf[C],
-    classOf[D]
+    "org.hammerlab.kryo.C",   // test picking up classes by name
+    classOf[D] → DSerializer  // test explicitly providing a custom serializer
   )
 }
 
+case class E(n: Int)
+case class F(n: Int)
+
+/** Test composing [[Registration]]s by registering this [[KryoRegistrator]] */
 class EFRegistrator extends KryoRegistrator {
   override def registerClasses(k: kryo.Kryo): Unit = {
     k.register(classOf[E])
     k.register(classOf[F])
   }
 }
-
-case class Foo(a: A, b: B, c: C, d: D, e: E, f: F)
-case class A(n: Int)
-case class B(n: Int)
-case class C(n: Int)
-case class D(n: Int)
-case class E(n: Int)
-case class F(n: Int)
