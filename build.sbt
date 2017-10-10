@@ -1,6 +1,6 @@
 name := "spark-util"
 
-version := "2.0.0-SNAPSHOT"
+version := "2.0.0"
 
 deps ++= Seq(
   paths % "1.3.1",
