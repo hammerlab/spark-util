@@ -14,7 +14,7 @@ trait SparkConfBase {
     for {
       (k, v) ← _sparkConfs
     } {
-      sparkConf.setIfMissing(k, v)
+      sparkConf.set(k, v)
     }
     sparkConf
   }

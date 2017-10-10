@@ -1,5 +1,6 @@
 package org.hammerlab.spark.confs
 
+import com.esotericsoftware.kryo
 import org.apache.spark.serializer.KryoRegistrator
 import org.hammerlab.spark.SparkConfBase
 import org.hammerlab.test.Suite
@@ -16,14 +17,14 @@ class KryoTest
 
 class TestRegistrator
   extends KryoRegistrator {
-  override def registerClasses(kryo: com.esotericsoftware.kryo.Kryo): Unit = ???
+  override def registerClasses(k: kryo.Kryo): Unit = ???
 }
 
 object HasSparkConf
   extends SparkConfBase
     with Kryo {
-  val conf = makeSparkConf
+  lazy val conf = makeSparkConf
   override def registrationRequired = false
   override def referenceTracking = true
-  override def registrar = classOf[TestRegistrator]
+  registrar[TestRegistrator]
 }

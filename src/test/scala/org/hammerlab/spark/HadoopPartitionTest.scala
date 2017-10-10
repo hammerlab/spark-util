@@ -18,6 +18,11 @@ class HadoopPartitionTest
 
   lazy val sc = new SparkContext(conf)
 
+  override def afterAll(): Unit = {
+    super.afterAll()
+    sc.stop()
+  }
+
   val path = tmpPath()
   val pathStr = path.toString
 
