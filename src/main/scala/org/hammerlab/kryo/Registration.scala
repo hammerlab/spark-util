@@ -7,12 +7,19 @@ import org.hammerlab.kryo.spark.Registrator
 import scala.reflect.ClassTag
 
 /**
- * Base for (usually implicitly-created) kryo-registrations that subclasses can add.
+ * Base for (conveniently, implicitly) performing kryo-registrations given various kinds of inputs.
+ *
+ * [[Class]] instances are the default / base case (and can come with an attendant implicit [[Serializer]] and
+ * related/required registrations via the [[AlsoRegister]] type-class), but [[Registrar]]s and [[Registrator]]s
+ * can be composed seamlessly as well for easy reuse of groups of registrations.
  */
 sealed trait Registration {
   def apply(implicit kryo: Kryo): Unit
 }
 
+/**
+ * Wrapper for a [[Class]] that should be directly kryo-registered, along with an [[Array]]-wrapped counterpart.
+ */
 case class ClassAndArray[T](cls: Class[T])
 object ClassAndArray {
   def apply[T](implicit ct: ClassTag[T]): ClassAndArray[T] =
@@ -26,7 +33,8 @@ object ClassAndArray {
 object Registration {
 
   /**
-   * Register a class, along with a custom serializer.
+   * Register a class, along with an optional custom serializer, list of classes that should also be registered, and
+   * flag for registering an [[Array]]-ified class as well.
    */
   case class ClassWithSerializerToRegister[U](cls: Class[U],
                                               serializer: Option[Serializer[U]],
@@ -47,7 +55,8 @@ object Registration {
   }
 
   /**
-   * Compose all of a provided [[Registrar]]'s [[Registration]]'s with this [[Registrar]].
+   * Compose all of a given [[Registrar]]'s [[Registration]]'s into a single [[Registration]], e.g. for re-use in a new
+   * [[Registrar]].
    */
   implicit class RegistrarToRegister(registrar: Registrar)
     extends Registration {
@@ -55,12 +64,16 @@ object Registration {
   }
 
   /**
-   * Compose all of a provided [[KryoRegistrator]]'s [[Registration]]'s with this [[Registrar]].
+   * Same as [[RegistrarToRegister]] but for a [[KryoRegistrator]].
    */
   implicit class KryoRegistratorToRegister(registrator: KryoRegistrator) extends Registration {
     override def apply(implicit kryo: Kryo): Unit = registrator.registerClasses(kryo)
   }
 
+  /**
+   * Same as [[RegistrarToRegister]] but with a [[Registrator]] (which is both a [[Registrar]] and a
+   * [[KryoRegistrator]]).
+   */
   implicit def registratorToRegistration(registrator: Registrator): Registration =
     RegistrarToRegister(registrator)
 
@@ -78,6 +91,9 @@ object Registration {
       Option(alsoRegister)
     )
 
+  /**
+   * Simple [[Registration]]-creation from a [[Class]].
+   */
   implicit def classWithImplicits[U](cls: Class[U])(
       implicit
       serializer: Serializer[U] = null,
@@ -89,6 +105,9 @@ object Registration {
       Option(alsoRegister)
     )
 
+  /**
+   * Create a [[Registration]] from a [[ClassAndArray]].
+   */
   implicit def classWithImplicitsAndArray[U](cls: ClassAndArray[U])(
       implicit
       serializer: Serializer[U] = null,
@@ -101,6 +120,9 @@ object Registration {
       withArray = true
     )
 
+  /**
+   * Create a [[Registration]] from a [[String]] ([[Class]] name).
+   */
   implicit def classNameWithImplicits(className: String): ClassWithSerializerToRegister[_] =
     ClassWithSerializerToRegister(
       Class.forName(className),

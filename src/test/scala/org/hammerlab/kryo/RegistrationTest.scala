@@ -5,7 +5,6 @@ import com.esotericsoftware.kryo.io.{ Input, Output }
 import com.esotericsoftware.kryo.{ Kryo, Serializer }
 import org.apache.spark.serializer.KryoRegistrator
 import org.hammerlab.kryo.spark.Registrator
-import org.hammerlab.kryo.spark.Registrator._
 import org.hammerlab.spark.{ Context, ContextSuite }
 
 import scala.collection.mutable

@@ -1,13 +1,11 @@
 package org.hammerlab.spark
 
-import org.hammerlab.kryo.spark.Registrator
 import org.hammerlab.test.Suite
 
 abstract class ContextSuite
   extends Suite
     with SparkConfBase
-    with Registrator
-    with confs.Kryo {
+    with SelfRegistrar {
 
   var sc: Context = _
 
@@ -16,8 +14,6 @@ abstract class ContextSuite
     "spark.app.name" → getClass.getName,
     "spark.driver.host" → "localhost"
   )
-
-  override def registrar = getClass
 
   override def afterAll(): Unit = {
     // Do this before the super delegation, which will remove the temporary event-log dir
