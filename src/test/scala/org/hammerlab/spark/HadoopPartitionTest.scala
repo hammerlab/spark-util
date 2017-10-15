@@ -3,28 +3,18 @@ package org.hammerlab.spark
 import org.apache.hadoop.io.{ BytesWritable, NullWritable }
 import org.apache.hadoop.mapred
 import org.apache.hadoop.mapreduce.lib.input
-import org.apache.spark.rdd.{ GetFileSplit, NonHadoopPartition }
-import org.apache.spark.{ SparkConf, SparkContext }
+import org.apache.spark.rdd.{ AsHadoopPartition, AsNewHadoopPartition, GetFileSplit, NonHadoopPartition }
 import org.hammerlab.hadoop.splits.{ FileSplit, UnsplittableNewSequenceFileInputFormat, UnsplittableSequenceFileInputFormat }
-import org.hammerlab.test.Suite
 
 class HadoopPartitionTest
-  extends Suite {
-
-  val conf =
-    new SparkConf()
-      .setMaster("local[4]")
-      .setAppName(getClass.getCanonicalName)
-
-  lazy val sc = new SparkContext(conf)
-
-  override def afterAll(): Unit = {
-    super.afterAll()
-    sc.stop()
-  }
+  extends ContextSuite {
 
   val path = tmpPath()
   val pathStr = path.toString
+
+  import org.hammerlab.kryo._
+
+  register(cls[Range])
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
@@ -51,8 +41,9 @@ class HadoopPartitionTest
           pathStr
         )
 
-    rdd
-      .partitions
+    val partitions = rdd.partitions
+
+    partitions
       .map(
         GetFileSplit(_).path
       ) should be(
@@ -63,6 +54,8 @@ class HadoopPartitionTest
         path / "part-00003"
       )
     )
+
+    partitions.map(AsHadoopPartition(_).index) should be(0 to 3)
   }
 
   test("new hadoop rdd") {
@@ -80,8 +73,9 @@ class HadoopPartitionTest
           pathStr
         )
 
-    rdd
-      .partitions
+    val partitions = rdd.partitions
+
+    partitions
       .map(
         GetFileSplit(_).path
       ) should be(
@@ -92,6 +86,8 @@ class HadoopPartitionTest
           path / "part-00003"
         )
       )
+
+    partitions.map(AsNewHadoopPartition(_).index) should be(0 to 3)
   }
 
   test("non-hadoop rdd") {

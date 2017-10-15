@@ -30,7 +30,7 @@ class UnsplittableSequenceFileInputFormat[K, V]
           case PartFileBasename(idx) ⇒
             idx
           case basename ⇒
-            throw new IOException(s"Bad partition file: $basename")
+            throw new IllegalArgumentException(s"Bad partition file: $basename")
         }
       }
 }
@@ -54,7 +54,7 @@ class UnsplittableNewSequenceFileInputFormat[K, V]
           case PartFileBasename(idx) ⇒
             idx
           case basename ⇒
-            throw new IOException(s"Bad partition file: $basename")
+            throw new IllegalArgumentException(s"Bad partition file: $basename")
         }
       }
       .asJava

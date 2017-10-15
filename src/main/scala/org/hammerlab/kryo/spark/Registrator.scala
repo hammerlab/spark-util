@@ -13,11 +13,3 @@ trait Registrator
   override def registerClasses(kryo: Kryo): Unit =
     this.apply(kryo)
 }
-
-object Registrator {
-  implicit def registrarToRegistrator(registrar: Registrar): KryoRegistrator =
-    new KryoRegistrator {
-      override def registerClasses(kryo: Kryo): Unit =
-        registrar(kryo)
-    }
-}

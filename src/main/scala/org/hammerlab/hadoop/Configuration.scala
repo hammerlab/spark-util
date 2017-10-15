@@ -42,9 +42,8 @@ object Configuration {
   implicit def sparkContextToHadoopConfiguration(sc: SparkContext): Configuration =
     sc.hadoopConfiguration
 
-  implicit class ConfWrapper(val conf: HadoopConfiguration) extends AnyVal {
-    def serializable: Configuration =
-      Configuration(conf)
+  implicit class Ops(val conf: HadoopConfiguration) extends AnyVal {
+    def serializable: Configuration = conf
   }
 
   def register(kryo: Kryo): Unit = {
