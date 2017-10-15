@@ -24,15 +24,12 @@ class ConfsTest
 
   test("make SparkContext") {
 
-    implicit val conf = makeSparkConf
-
     conf.get("spark.serializer") should be(classOf[KryoSerializer].getCanonicalName)
     conf.get("spark.dynamicAllocation.enabled") should be("true")
     conf.get("spark.eventLog.enabled") should be("true")
     conf.get("spark.eventLog.dir") should be(eventLogDir)
     conf.get("spark.speculation") should be("true")
 
-    sc = Context()
     val strings = Array("a", "b", "c", "d")
     val fooBroadcast = sc.broadcast(Foo("x"))
     val rdd = sc.parallelize(strings)
