@@ -2,6 +2,9 @@ package org.hammerlab.spark
 
 import org.apache.spark
 
+/**
+ * Convenience-methods for creating Spark [[Partitioner]]s from (partial-)functions
+ */
 object Partitioner {
   def apply(num: NumPartitions,
             pf: PartialFunction[Any, PartitionIndex]): spark.Partitioner =

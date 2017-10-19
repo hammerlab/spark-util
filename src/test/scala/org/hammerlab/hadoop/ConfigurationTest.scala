@@ -15,6 +15,7 @@ import scala.collection.JavaConverters._
 
 class ConfigurationTest
   extends Suite {
+
   test("kryo serde") {
     val conf = Configuration()
     val kryo = new Kryo()
@@ -27,7 +28,7 @@ class ConfigurationTest
     }
     .getMessage should startWith("Class is not registered: org.hammerlab.hadoop.Configuration")
 
-    Configuration.register(kryo)
+    Configuration(kryo)
 
     kryo.writeClassAndObject(output, conf)
 

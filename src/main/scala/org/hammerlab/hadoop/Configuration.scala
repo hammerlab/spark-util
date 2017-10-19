@@ -2,14 +2,16 @@ package org.hammerlab.hadoop
 
 import java.io.{ ObjectInputStream, ObjectOutputStream }
 
-import com.esotericsoftware.kryo.Kryo
 import org.apache.hadoop.conf
 import org.apache.hadoop.conf.{ Configuration ⇒ HadoopConfiguration }
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.hammerlab.hadoop.kryo.WritableSerializer
-import org.hammerlab.kryo.serializeAs
+import org.hammerlab.kryo._
 
+/**
+ * [[Serializable]] wrapper for a Hadoop [[conf.Configuration]]
+ */
 class Configuration(@transient var value: HadoopConfiguration)
   extends Serializable {
   private def writeObject(out: ObjectOutputStream): Unit = {
@@ -22,7 +24,8 @@ class Configuration(@transient var value: HadoopConfiguration)
   }
 }
 
-object Configuration {
+object Configuration
+  extends Registrar {
 
   def apply(loadDefaults: Boolean = true): Configuration =
     new HadoopConfiguration(loadDefaults)
@@ -46,15 +49,8 @@ object Configuration {
     def serializable: Configuration = conf
   }
 
-  def register(kryo: Kryo): Unit = {
-    kryo.register(
-      classOf[conf.Configuration],
-      new WritableSerializer[conf.Configuration]
-    )
-
-    kryo.register(
-      classOf[Configuration],
-      serializeAs[Configuration, conf.Configuration]
-    )
-  }
+  register(
+    cls[conf.Configuration] → new WritableSerializer[conf.Configuration],
+    classOf[Configuration] → serializeAs[Configuration, conf.Configuration]
+  )
 }

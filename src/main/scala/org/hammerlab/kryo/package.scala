@@ -6,6 +6,9 @@ import com.esotericsoftware.kryo.{ Kryo, Serializer }
 import scala.reflect.ClassTag
 
 package object kryo {
+  /**
+   * Generate a kryo [[Serializer]] that delegates to another type and its [[Serializer]]
+   */
   def serializeAs[T, U](implicit to: T ⇒ U, from: U ⇒ T): Serializer[T] =
     new Serializer[T] {
       override def read(kryo: Kryo, input: Input, `type`: Class[T]): T =
@@ -19,6 +22,7 @@ package object kryo {
         kryo.writeClassAndObject(output, to(t))
     }
 
+  /** Shorthands for registering classes and their [[Array]]-counterparts */
   def cls[T](implicit ct: ClassTag[T]): Class[T] = ct.runtimeClass.asInstanceOf[Class[T]]
   def arr[T](implicit ct: ClassTag[T]): ClassAndArray[T] = ClassAndArray[T]
 }

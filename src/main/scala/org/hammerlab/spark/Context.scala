@@ -3,6 +3,9 @@ package org.hammerlab.spark
 import org.apache.spark.{ SparkConf, SparkContext }
 import org.hammerlab.hadoop.Configuration
 
+/**
+ * [[SparkContext]]-wrapper that is also a [[Configuration Hadoop configuration object]] (and [[Serializable]]).
+ */
 case class Context(@transient sc: SparkContext)
   extends Configuration(sc.hadoopConfiguration)
 
