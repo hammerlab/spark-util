@@ -6,6 +6,10 @@ import org.apache.spark.util.AccumulatorV2
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable
 
+/**
+ * [[AccumulatorV2 Accumulator]] that keeps a counter of "key" objects that are added to it, ultimately emitting a
+ * [[SortedMap]] of keys and their counts.
+ */
 case class Histogram[T: Ordering](var map: mutable.Map[T, Long] = mutable.Map.empty[T, Long])
   extends AccumulatorV2[T, SortedMap[T, Long]] {
 

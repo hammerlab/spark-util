@@ -3,6 +3,10 @@ package org.hammerlab.spark
 import org.apache.spark.SparkConf
 import org.hammerlab.paths.Path
 
+/**
+ * Convenience method for loading a [[SparkConf]] with initial values taken from a comma-delimited list of files in the
+ * SPARK_PROPERTIES_FILES environment variable (as well as system properties as usual).
+ */
 object Conf {
 
   val propsLineRegex = """(\S+)\s+(.*)""".r
