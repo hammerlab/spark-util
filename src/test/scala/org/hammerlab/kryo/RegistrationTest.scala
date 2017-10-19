@@ -23,9 +23,6 @@ class RegistrationTest
   )
 
   test("registrations") {
-    implicit val conf = makeSparkConf
-    sc = Context()
-
     sc
       .parallelize(
         Array(
