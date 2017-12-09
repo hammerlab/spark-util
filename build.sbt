@@ -1,15 +1,8 @@
 name := "spark-util"
-
-version := "2.0.1"
-
-deps ++= Seq(
+r"2.0.1"
+dep(
   paths % "1.3.1",
-  kryo
+  hadoop provided,
+  kryo,
+  spark provided
 )
-
-providedDeps ++= Seq(
-  hadoop,
-  spark
-)
-
-testDeps := Seq(testUtils)
