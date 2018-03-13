@@ -5,11 +5,10 @@ import java.util.Properties
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{ Input, Output }
+import hammerlab.test.Suite
 import org.apache.hadoop
 import org.apache.hadoop.conf.Configuration.isDeprecated
 import org.hammerlab.spark.ContextSuite
-import org.hammerlab.test.Suite
-import org.hammerlab.test.matchers.seqs.MapMatcher.mapMatch
 
 import scala.collection.JavaConverters._
 
