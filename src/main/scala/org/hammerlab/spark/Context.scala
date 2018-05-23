@@ -11,6 +11,7 @@ case class Context(@transient sc: SparkContext)
 
 object Context {
   implicit def makeContext(sc: SparkContext): Context = Context(sc)
+  implicit def deriveContext(implicit sc: SparkContext): Context = Context(sc)
   implicit def umakeContext(context: Context): SparkContext = context.sc
 
   def apply()(implicit conf: SparkConf): Context =
