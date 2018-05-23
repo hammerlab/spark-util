@@ -6,7 +6,7 @@ import scala.collection.mutable
 
 /**
  * Interface for applications to register fall-back default Spark-configuration values, using the
- * [[SparkConfBase.sparkConf]] method below.
+ * [[SparkConfBase]] `sparkConf` method below.
  *
  * Configs are added to a [[org.apache.spark.SparkConf]] after it's been instantiated and other defaults have been
  * applied to it, and are only written to keys that have no value.
