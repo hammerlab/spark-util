@@ -1,6 +1,7 @@
 package org.hammerlab.kryo
 
-import com.esotericsoftware.kryo.{ Kryo, Serializer }
+import com.esotericsoftware.kryo
+import com.esotericsoftware.kryo.Kryo
 import org.apache.spark.serializer.KryoRegistrator
 import org.hammerlab.kryo.spark.Registrator
 
@@ -43,7 +44,7 @@ object Registration {
     extends Registration {
     override def apply(implicit kryo: Kryo): Unit = {
       serializer match {
-        case Some(serializer) ⇒ kryo.register(cls, serializer)
+        case Some(serializer) ⇒ kryo.register(cls, serializer(kryo))
         case _ ⇒ kryo.register(cls)
       }
 
@@ -82,9 +83,36 @@ object Registration {
    *
    * register(classOf[Foo] → new FooSerializer)
    */
-  implicit def withCustomSerializer[U](t: (Class[U], Serializer[U]))(
-      implicit alsoRegister: AlsoRegister[U] = null
-  ): ClassWithSerializerToRegister[U] =
+  implicit def withCustomKryoSerializer[U](
+    t: (Class[U], kryo.Serializer[U])
+  )(
+    implicit alsoRegister: AlsoRegister[U] = null
+  ):
+    ClassWithSerializerToRegister[U] =
+    ClassWithSerializerToRegister(
+      t._1,
+      Some(t._2),
+      Option(alsoRegister)
+    )
+
+  implicit def withCustomSerializer[U](
+    t: (Class[U], Serializer[U])
+  )(
+    implicit alsoRegister: AlsoRegister[U] = null
+  ):
+    ClassWithSerializerToRegister[U] =
+    ClassWithSerializerToRegister(
+      t._1,
+      Some(t._2),
+      Option(alsoRegister)
+    )
+
+  implicit def withCustomSerializerFn[U](
+    t: (Class[U], Kryo ⇒ kryo.Serializer[U])
+  )(
+    implicit alsoRegister: AlsoRegister[U] = null
+  ):
+    ClassWithSerializerToRegister[U] =
     ClassWithSerializerToRegister(
       t._1,
       Some(t._2),
@@ -98,7 +126,8 @@ object Registration {
       implicit
       serializer: Serializer[U] = null,
       alsoRegister: AlsoRegister[U] = null
-  ): ClassWithSerializerToRegister[U] =
+  ):
+    ClassWithSerializerToRegister[U] =
     ClassWithSerializerToRegister(
       cls,
       Option(serializer),
@@ -109,10 +138,11 @@ object Registration {
    * Create a [[Registration]] from a [[ClassAndArray]].
    */
   implicit def classWithImplicitsAndArray[U](cls: ClassAndArray[U])(
-      implicit
-      serializer: Serializer[U] = null,
-      alsoRegister: AlsoRegister[U] = null
-  ): ClassWithSerializerToRegister[U] =
+    implicit
+    serializer: Serializer[U] = null,
+    alsoRegister: AlsoRegister[U] = null
+  ):
+    ClassWithSerializerToRegister[U] =
     ClassWithSerializerToRegister(
       cls,
       Option(serializer),
@@ -123,7 +153,10 @@ object Registration {
   /**
    * Create a [[Registration]] from a [[String]] ([[Class]] name).
    */
-  implicit def classNameWithImplicits(className: String): ClassWithSerializerToRegister[_] =
+  implicit def classNameWithImplicits(
+    className: String
+  ):
+    ClassWithSerializerToRegister[_] =
     ClassWithSerializerToRegister(
       Class.forName(className),
       None,

@@ -9,8 +9,8 @@ package object kryo {
   /**
    * Generate a kryo [[Serializer]] that delegates to another type and its [[Serializer]]
    */
-  def serializeAs[T, U](implicit to: T ⇒ U, from: U ⇒ T): Serializer[T] =
-    new Serializer[T] {
+  def serializeAs[T, U](implicit to: T ⇒ U, from: U ⇒ T): com.esotericsoftware.kryo.Serializer[T] =
+    new com.esotericsoftware.kryo.Serializer[T] {
       override def read(kryo: Kryo, input: Input, `type`: Class[T]): T =
         from(
           kryo

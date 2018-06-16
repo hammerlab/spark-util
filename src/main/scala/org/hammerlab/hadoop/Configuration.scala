@@ -51,6 +51,6 @@ object Configuration
 
   register(
     cls[conf.Configuration] → new WritableSerializer[conf.Configuration],
-    classOf[Configuration] → serializeAs[Configuration, conf.Configuration]
+    cls[Configuration] → serializeAs[Configuration, conf.Configuration]
   )
 }

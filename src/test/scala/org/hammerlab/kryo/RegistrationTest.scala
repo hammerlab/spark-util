@@ -1,11 +1,12 @@
 package org.hammerlab.kryo
 
 import com.esotericsoftware.kryo
+import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{ Input, Output }
-import com.esotericsoftware.kryo.{ Kryo, Serializer }
+import com.esotericsoftware.kryo.serializers.FieldSerializer
 import org.apache.spark.serializer.KryoRegistrator
 import org.hammerlab.kryo.spark.Registrator
-import org.hammerlab.spark.{ Context, ContextSuite }
+import org.hammerlab.spark.ContextSuite
 
 import scala.collection.mutable
 
@@ -19,27 +20,33 @@ class RegistrationTest
     CDRegistrar,
     CDRegistrar: KryoRegistrator,  // test duplicate registration and a Registrator implicit
     CDRegistrar: Registrar,        // test duplicate registration and a Registration implicit
-    new EFRegistrator
+    new EFRegistrator,
+    cls[G],
+    cls[H] → H.serializer,
+    cls[I] → I.serializer
   )
 
   test("registrations") {
     sc
       .parallelize(
         Array(
-          Foo(A( 10), B( 20), C( 30), D( 40), E( 50), F( 60)),
-          Foo(A(100), B(200), C(300), D(400), E(500), F(600))
+          Foo(A( 10), B( 20), C( 30), D( 40), E( 50), F( 60), G( 70), H( 80), I( 90)),
+          Foo(A(100), B(200), C(300), D(400), E(500), F(600), G(700), H(800), I(900))
         ),
         numSlices = 2
       )
       .flatMap {
-        case Foo(A(a), B(b), C(c), D(d), E(e), F(f)) ⇒
+        case Foo(A(a), B(b), C(c), D(d), E(e), F(f), G(g), H(h), I(i)) ⇒
           Array(
             a,
             b,
             c,
             d,
             e,
-            f
+            f,
+            g,
+            h,
+            i
           )
       }
       .collect should be(
@@ -50,19 +57,25 @@ class RegistrationTest
         42,
         50,
         60,
+        70,
+        80,
+        90,
         100,
         2000,
         300,
         42,
         500,
-        600
+        600,
+        700,
+        800,
+        900
       )
     )
   }
 }
 
 // Wrapper for inducing/testing serde of a bunch of classes
-case class Foo(a: A, b: B, c: C, d: D, e: E, f: F)
+case class Foo(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I)
 
 case class A(n: Int)
 object A {
@@ -75,17 +88,17 @@ case class B(n: Int)
 object B {
   /** Dummy [[Serializer]] that 10x's a value that is round-tripped through it, for testing/verification purposes */
   implicit val serializer: Serializer[B] =
-    new Serializer[B] {
-      override def read(k: kryo.Kryo, input: Input, clz: Class[B]): B = B(input.readInt())
-      override def write(k: kryo.Kryo, output: Output, b: B) = output.writeInt(b.n * 10)
-    }
+    Serializer(
+      (k, input) ⇒ B(input.readInt()),
+      (k, output, b) ⇒ output.writeInt(b.n * 10)
+    )
 }
 
 
 case class C(n: Int)
 
 case class D(n: Int)
-object DSerializer extends Serializer[D] {
+object DSerializer extends kryo.Serializer[D] {
   /** Dummy [[Serializer]] that sets all values to 42, for testing/verification purposes */
   override def read(kryo: Kryo, input: Input, cls: Class[D]): D = { input.readInt(); D(42) }
   override def write(kryo: Kryo, output: Output, d: D): Unit = output.writeInt(d.n)
@@ -108,4 +121,29 @@ class EFRegistrator extends KryoRegistrator {
     k.register(classOf[E])
     k.register(classOf[F])
   }
+}
+
+case class G(n: Int)
+object G {
+  implicit val serializer =
+    Serializer(
+      new FieldSerializer[G](_, classOf[G])
+    )
+}
+
+case class H(n: Int)
+object H {
+  // not implicit, registered explicitly above
+  val serializer =
+    Serializer(
+      new FieldSerializer[H](_, classOf[H])
+    )
+}
+
+case class I(n: Int)
+object I {
+  // not implicit, registered explicitly above
+  val serializer =
+    (kryo: Kryo) ⇒
+      new FieldSerializer[I](kryo, classOf[I])
 }
