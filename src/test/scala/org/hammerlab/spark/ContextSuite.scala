@@ -9,7 +9,8 @@ trait ConfSuite
   sparkConf(
     "spark.master" → s"local[4]",
     "spark.app.name" → getClass.getName,
-    "spark.driver.host" → "localhost"
+    "spark.driver.host" → "localhost",
+    "spark.kryo.classesToRegister" → "org.apache.spark.internal.io.FileCommitProtocol$TaskCommitMessage"
   )
 }
 
