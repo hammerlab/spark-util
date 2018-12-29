@@ -23,7 +23,6 @@ class ConfsTest
   )
 
   test("make SparkContext") {
-
     conf.get("spark.serializer") should be(classOf[KryoSerializer].getCanonicalName)
     conf.get("spark.dynamicAllocation.enabled") should be("true")
     conf.get("spark.eventLog.enabled") should be("true")
